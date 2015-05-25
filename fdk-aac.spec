@@ -1,12 +1,12 @@
 Summary:	Fraunhofer FDK AAC Codec library
 Summary(pl.UTF-8):	Biblioteka kodeka Fraunhofer FDK AAC
 Name:		fdk-aac
-Version:	0.1.0
+Version:	0.1.4
 Release:	1
 License:	distributable, patent license required in some countries
 Group:		Libraries
 Source0:	http://downloads.sourceforge.net/opencore-amr/%{name}-%{version}.tar.gz
-# Source0-md5:	09f453aab3fa0938a5df7bce25f6e373
+# Source0-md5:	e274a7d7f6cd92c71ec5c78e4dc9f8b7
 BuildRequires:	libstdc++-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -74,9 +74,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog COPYING
+%doc ChangeLog NOTICE
 %attr(755,root,root) %{_libdir}/libfdk-aac.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfdk-aac.so.0
+%attr(755,root,root) %ghost %{_libdir}/libfdk-aac.so.1
 
 %files devel
 %defattr(644,root,root,755)
