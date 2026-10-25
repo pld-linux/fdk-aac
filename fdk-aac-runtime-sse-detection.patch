@@ -1,0 +1,77 @@
+--- fdk-aac-3.0.0/xhe-aac/mathlib/src/opt/fpucontrol_opt.h.orig	2026-10-11 12:42:54.000000000 +0200
++++ fdk-aac-3.0.0/xhe-aac/mathlib/src/opt/fpucontrol_opt.h	2026-10-24 19:43:34.723901292 +0200
+@@ -99,20 +99,11 @@ amm-info@iis.fraunhofer.de
+ #define FPUCONTROL_OPT_H
+ 
+ #if (defined _M_IX86 || defined _M_X64 || defined __i386__ || defined __x86_64__)
+-#if defined(_MSC_VER)
+-#include <intrin.h>
+-#elif defined(__GNUC__)
+-#include <x86intrin.h>
+-#endif
+ 
+-static unsigned int fpuctrl_getSSE_mxcsr(void) {
+-  return _mm_getcsr();
+-}
++unsigned int fpuctrl_getSSE_mxcsr(void);
++
++unsigned int fpuctrl_setSSE_mxcsr(unsigned int ctrlWord);
+ 
+-static unsigned int fpuctrl_setSSE_mxcsr(unsigned int ctrlWord) {
+-  _mm_setcsr(ctrlWord);
+-  return _mm_getcsr();
+-}
+ #endif
+ 
+ #endif
+--- fdk-aac-3.0.0/xhe-aac/mathlib/src/opt/fpucontrol_opt.c.orig	1970-01-01 01:00:00.000000000 +0100
++++ fdk-aac-3.0.0/xhe-aac/mathlib/src/opt/fpucontrol_opt.c	1970-01-01 01:00:00.000000000 +0100
+@@ -0,0 +1,20 @@
++#include "fpucontrol_opt.h"
++
++#pragma GCC target("sse")
++#if (defined _M_IX86 || defined _M_X64 || defined __i386__ || defined __x86_64__)
++#if defined(_MSC_VER)
++#include <intrin.h>
++#elif defined(__GNUC__)
++#include <x86intrin.h>
++#endif
++
++unsigned int fpuctrl_getSSE_mxcsr(void) {
++  return _mm_getcsr();
++}
++
++unsigned int fpuctrl_setSSE_mxcsr(unsigned int ctrlWord) {
++  _mm_setcsr(ctrlWord);
++  return _mm_getcsr();
++}
++
++#endif
+--- fdk-aac-3.0.0/CMakeLists.txt.orig	2026-10-11 12:42:54.000000000 +0200
++++ fdk-aac-3.0.0/CMakeLists.txt	2026-10-24 19:49:55.041840933 +0200
+@@ -620,6 +620,7 @@ set(MATH_SRC
+   mathlib/src/cfft.c
+   mathlib/src/cpuinfo.c
+   mathlib/src/fpucontrol.c
++  mathlib/src/opt/fpucontrol_opt.c
+   mathlib/src/iis_dxt.c
+   mathlib/src/iis_fft.c
+   mathlib/src/iis_mdxt.c
+@@ -871,6 +872,7 @@ if(MSVC)
+   target_compile_options(fdk-aac PRIVATE /EHsc)
+ else()
+   target_compile_options(fdk-aac PRIVATE -fno-exceptions -fno-rtti)
++  set_source_files_properties(mathlib/src/opt/fpucontrol_opt.c PROPERTIES COMPILE_OPTIONS "-msse")
+ endif()
+ 
+ ### Set proper name for MinGW or Cygwin DLL
+--- fdk-aac-3.0.0/Makefile.am.orig	2026-10-11 12:42:54.000000000 +0200
++++ fdk-aac-3.0.0/Makefile.am	2026-10-24 20:01:53.314616382 +0200
+@@ -479,6 +479,7 @@ MATH_SRC = \
+     xhe-aac/mathlib/src/cfft.c \
+     xhe-aac/mathlib/src/cpuinfo.c \
+     xhe-aac/mathlib/src/fpucontrol.c \
++    xhe-aac/mathlib/src/opt/fpucontrol_opt.c \
+     xhe-aac/mathlib/src/iis_dxt.c \
+     xhe-aac/mathlib/src/iis_fft.c \
+     xhe-aac/mathlib/src/iis_mdxt.c \
